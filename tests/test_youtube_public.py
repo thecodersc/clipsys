@@ -12,6 +12,7 @@ def _fake_yt(monkeypatch, update_fails=False):
     if update_fails:
         yt.videos().update().execute.side_effect = RuntimeError("forbidden")
     monkeypatch.setattr(yt_mod, "_get_credentials", lambda ref: None)
+    monkeypatch.setattr(yt_mod, "PUBLIC_RETRY_SECONDS", 0)
     monkeypatch.setattr("googleapiclient.discovery.build", lambda *a, **k: yt)
     monkeypatch.setattr("googleapiclient.http.MediaFileUpload", MagicMock())
     return yt
@@ -46,3 +47,10 @@ def test_hashtags_go_in_description_and_tags_lose_hash(monkeypatch):
     snippet = yt.videos().insert.call_args.kwargs["body"]["snippet"]
     assert snippet["description"] == "desc\n\n#GTA6 #GTAVI"
     assert snippet["tags"] == ["GTA6", "GTAVI"]
+
+
+def test_flip_is_retried_after_a_transient_403(monkeypatch):
+    yt = _fake_yt(monkeypatch)
+    yt.videos().update().execute.side_effect = [RuntimeError("forbidden"), {}]
+    assert _publish().metadata["privacy"] == "public"
+    assert units_used_today("acct_01") == 1650

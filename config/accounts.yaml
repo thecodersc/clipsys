@@ -21,7 +21,7 @@ accounts:
     handle: "@example_02"
     token_ref: yt_acct_02
     stage: 0
-    daily_cap: 2
+    daily_cap: 0            # parked: not live yet (was 2-3). Raise when this account goes live
     posting_windows: ["10:00-12:00", "19:00-22:00"]
     jitter_minutes: 15
     live: false
@@ -37,7 +37,7 @@ accounts:
     handle: "@example_03"
     token_ref: yt_acct_03
     stage: 0
-    daily_cap: 3
+    daily_cap: 0            # parked: not live yet (was 2-3). Raise when this account goes live
     posting_windows: ["08:00-10:00", "20:00-23:00"]
     jitter_minutes: 10
     live: false
@@ -53,7 +53,7 @@ accounts:
     handle: "@example_04"
     token_ref: yt_acct_04
     stage: 0
-    daily_cap: 2
+    daily_cap: 0            # parked: not live yet (was 2-3). Raise when this account goes live
     posting_windows: ["13:00-15:00", "21:00-23:00"]
     jitter_minutes: 20
     live: false
@@ -69,7 +69,7 @@ accounts:
     handle: "ExamplePage05"
     token_ref: fb_acct_05
     stage: 0
-    daily_cap: 2
+    daily_cap: 0            # parked: not live yet (was 2-3). Raise when this account goes live
     posting_windows: ["11:00-13:00", "18:00-20:00"]
     jitter_minutes: 15
     live: false
@@ -85,7 +85,7 @@ accounts:
     handle: "ExamplePage06"
     token_ref: fb_acct_06
     stage: 0
-    daily_cap: 2
+    daily_cap: 0            # parked: not live yet (was 2-3). Raise when this account goes live
     posting_windows: ["12:00-14:00", "19:00-21:00"]
     jitter_minutes: 20
     live: false
@@ -101,7 +101,7 @@ accounts:
     handle: "ExamplePage07"
     token_ref: fb_acct_07
     stage: 0
-    daily_cap: 2
+    daily_cap: 0            # parked: not live yet (was 2-3). Raise when this account goes live
     posting_windows: ["09:00-11:00", "17:00-19:00"]
     jitter_minutes: 10
     live: false
@@ -117,7 +117,7 @@ accounts:
     handle: "ExamplePage08"
     token_ref: fb_acct_08
     stage: 0
-    daily_cap: 2
+    daily_cap: 0            # parked: not live yet (was 2-3). Raise when this account goes live
     posting_windows: ["14:00-16:00", "20:00-22:00"]
     jitter_minutes: 15
     live: false
@@ -133,7 +133,7 @@ accounts:
     handle: "@example_tt_01"
     token_ref: tt_acct_09
     stage: 0
-    daily_cap: 3
+    daily_cap: 0            # parked: not live yet (was 2-3). Raise when this account goes live
     posting_windows: ["12:00-14:00", "19:00-22:00"]
     jitter_minutes: 20
     live: false
@@ -149,7 +149,7 @@ accounts:
     handle: "@example_tt_02"
     token_ref: tt_acct_10
     stage: 0
-    daily_cap: 3
+    daily_cap: 0            # parked: not live yet (was 2-3). Raise when this account goes live
     posting_windows: ["10:00-12:00", "21:00-23:00"]
     jitter_minutes: 15
     live: false
@@ -165,7 +165,7 @@ accounts:
     handle: "@example_tt_03"
     token_ref: tt_acct_11
     stage: 0
-    daily_cap: 2
+    daily_cap: 0            # parked: not live yet (was 2-3). Raise when this account goes live
     posting_windows: ["13:00-15:00", "20:00-22:00"]
     jitter_minutes: 10
     live: false
@@ -181,7 +181,7 @@ accounts:
     handle: "@example_tt_04"
     token_ref: tt_acct_12
     stage: 0
-    daily_cap: 2
+    daily_cap: 0            # parked: not live yet (was 2-3). Raise when this account goes live
     posting_windows: ["11:00-13:00", "18:00-21:00"]
     jitter_minutes: 20
     live: false

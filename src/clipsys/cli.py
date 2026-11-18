@@ -332,6 +332,14 @@ def run_all(
         console.print("[red]KILL file present — aborting.[/red]")
         raise typer.Exit(1)
 
+    _run_stages()
+
+    # Delegate to publish command logic
+    _publish_inline(live)
+
+
+def _run_stages() -> None:
+    """Run ingest through caption (everything except publish)."""
     from clipsys.allocate import run_allocate
     from clipsys.caption import run_caption
     from clipsys.cut import cut_clips
@@ -355,10 +363,44 @@ def run_all(
         result = fn()
         console.print(f"  {result}")
 
-    # Delegate to publish command logic
-    from typer.testing import CliRunner  # noqa: F401 — not used; call directly
-    # Re-use publish logic inline to avoid subprocess
-    _publish_inline(live)
+
+@app.command()
+def watch(
+    folder: Path = typer.Argument(..., help="Folder where stream recordings appear"),
+    program: str = typer.Option(..., help="Program id from programs.yaml that covers this footage"),
+    creator: str = typer.Option(..., help="Creator name recorded with each source"),
+    interval: int = typer.Option(30, help="Seconds between folder checks"),
+    once: bool = typer.Option(False, "--once", help="Check twice, process what is finished, then exit"),
+) -> None:
+    """Watch a recordings folder; clip each finished file. Never publishes — review and publish as usual."""
+    _ensure_db()
+    import time
+
+    from clipsys.config import load_programs
+    from clipsys.watch import add_to_manifest, finished_files, manifest_files
+
+    folder = folder.resolve()  # note: a relative path resolves from the project folder; pass a full path
+    if not folder.is_dir():
+        console.print(f"[red]Not a folder: {folder}[/red]")
+        raise typer.Exit(1)
+    # Same gate as ingest: no permission record, no clips.
+    if program not in {p.id for p in load_programs().programs}:
+        console.print(f"[red]Program '{program}' has no permission record in config/programs.yaml.[/red]")
+        raise typer.Exit(1)
+
+    console.print(f"Watching [bold]{folder}[/bold] every {interval}s (Ctrl+C to stop)")
+    sizes: dict[Path, int] = {}
+    checks = 0
+    while True:
+        new = finished_files(folder, sizes, manifest_files())
+        if new:
+            console.print(f"[green]Finished recordings:[/green] {[p.name for p in new]}")
+            add_to_manifest(new, program, creator)
+            _run_stages()
+        checks += 1
+        if once and checks >= 2:
+            break
+        time.sleep(interval)
 
 
 def _publish_inline(live: bool) -> None:

@@ -4,7 +4,7 @@ score:
     loudness_peak: 0.25
     scene_density: 0.15
     keyword_hits: 0.25
-  min_score: 0.5       # z-score units; tune during testing
+  min_score: 0.45      # z-score units; tune during testing
   nms_window_seconds: 45
   keywords:
     - explosion
