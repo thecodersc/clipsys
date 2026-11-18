@@ -131,7 +131,7 @@ _CONFIG_DIR = Path("config")
 
 def load_programs(path: Path | None = None) -> ProgramsConfig:
     p = path or (_CONFIG_DIR / "programs.yaml")
-    raw = ProgramsConfig(**yaml.safe_load(p.read_text()))
+    raw = ProgramsConfig(**yaml.safe_load(p.read_text(encoding="utf-8-sig")))
     permitted = []
     for prog in raw.programs:
         if not prog.clip_permission:
@@ -152,9 +152,9 @@ def load_programs(path: Path | None = None) -> ProgramsConfig:
 
 def load_accounts(path: Path | None = None) -> AccountsConfig:
     p = path or (_CONFIG_DIR / "accounts.yaml")
-    return AccountsConfig(**yaml.safe_load(p.read_text()))
+    return AccountsConfig(**yaml.safe_load(p.read_text(encoding="utf-8-sig")))
 
 
 def load_thresholds(path: Path | None = None) -> ThresholdsConfig:
     p = path or (_CONFIG_DIR / "thresholds.yaml")
-    return ThresholdsConfig(**yaml.safe_load(p.read_text()))
+    return ThresholdsConfig(**yaml.safe_load(p.read_text(encoding="utf-8-sig")))

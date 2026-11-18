@@ -19,7 +19,7 @@ Everything runs on your own PC. Nothing is uploaded until you approve a clip and
 | About 10 GB of free disk space | models, clips | |
 
 An NVIDIA graphics card is optional. Without one, transcription runs on the processor and
-is slower. See "GPU add-on" at the end.
+is slower. See "GPU add-on" near the end.
 
 After installing ffmpeg and Ollama, **close and reopen PowerShell** so it can find them.
 
@@ -207,6 +207,7 @@ Posting footage you have no rights to can get the video removed and the channel 
 | `.\clipsys.exe review` | Starts the approval page |
 | `.\clipsys.exe publish --live` | Uploads approved clips |
 | `.\clipsys.exe status` | Shows counts and today's quota |
+| `.\clipsys.exe record <url>` | Records a live stream into chunks (needs streamlink) |
 | `.\clipsys.exe watch <folder>` | Watches a recordings folder and clips each finished file (never uploads) |
 | `.\clipsys.exe --help` | Lists every command |
 
@@ -215,7 +216,40 @@ Delete it to resume.
 
 ---
 
-## 11. GPU add-on (optional, NVIDIA cards only)
+## 11. Clip from a live stream
+
+This needs one more program, streamlink: `winget install Streamlink.Streamlink` (then reopen
+PowerShell). You also need a program in `config\programs.yaml` that covers the streamer's
+footage, see "Rights" above.
+
+Use two PowerShell windows, both in the clipsys folder.
+
+**Window 1: record the stream.** It is saved into a `recordings` folder in 10-minute chunks.
+If the channel is offline, it waits and checks every minute.
+
+```powershell
+.\clipsys.exe record https://www.twitch.tv/channelname
+```
+
+**Window 2: clip each chunk as it finishes.**
+
+```powershell
+.\clipsys.exe watch recordings --program creator_name --creator "Creator Name"
+```
+
+Each time a chunk is complete, clipsys transcribes it, finds the best moments, and renders and
+captions the clips. Nothing is uploaded: approve and post as in step 6.
+
+- Clips appear roughly one chunk behind the stream. For faster clips use shorter chunks:
+  `--segment-minutes 5`.
+- Works with Twitch, Kick, YouTube Live and other sites streamlink supports.
+- Press **Ctrl+C** in each window to stop. The chunk being recorded is closed properly.
+- Recordings are large (about 1.5 GB per hour at 1080p). Delete old files from `recordings`
+  once their clips are made.
+
+---
+
+## 12. GPU add-on (optional, NVIDIA cards only)
 
 Transcription is many times faster on an NVIDIA graphics card.
 
@@ -228,7 +262,7 @@ processor when it is not. To force the processor, put `WHISPER_DEVICE=cpu` in `.
 
 ---
 
-## 12. If something goes wrong
+## 13. If something goes wrong
 
 | What you see | What to do |
 |---|---|

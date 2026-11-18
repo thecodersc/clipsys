@@ -9,3 +9,4 @@ inbox/
 build/
 dist/
 *.spec
+recordings/

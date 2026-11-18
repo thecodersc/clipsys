@@ -21,6 +21,10 @@ if ($LASTEXITCODE) { throw 'PyInstaller failed' }
 $out = 'dist\clipsys'
 Copy-Item config $out -Recurse -Force
 Copy-Item .env.example, USAGE.md $out -Force
+# The download is for other people: replace the owner's real channel handle with a placeholder.
+$acc = (Resolve-Path "$out\config\accounts.yaml").Path
+$text = [IO.File]::ReadAllText($acc) -replace 'handle: "@(?!example)[^"]+"', 'handle: "@yourchannel"'
+[IO.File]::WriteAllText($acc, $text)  # .NET writes UTF-8 without a byte-order mark
 New-Item -ItemType Directory -Force "$out\inbox" | Out-Null
 Set-Content "$out\inbox\manifest.csv" 'file,program_id,creator,source_url_or_empty,received_at' -Encoding ascii
 

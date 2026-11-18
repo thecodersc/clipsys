@@ -380,6 +380,29 @@ def _run_stages() -> None:
 
 
 @app.command()
+def record(
+    url: str = typer.Argument(..., help="Stream URL, e.g. https://www.twitch.tv/channel"),
+    out: Path = typer.Option(Path("recordings"), help="Folder the chunks are written to"),
+    quality: str = typer.Option("best", help="Stream quality, e.g. best, 1080p60, 720p"),
+    segment_minutes: int = typer.Option(10, help="Length of each recorded chunk"),
+) -> None:
+    """Record a live stream into chunks. Run `clipsys watch` on the same folder to clip them."""
+    from clipsys.record import record as run_record
+
+    out = out.resolve()
+    console.print(f"Recording [bold]{url}[/bold] into {out} in {segment_minutes}-minute chunks (Ctrl+C to stop)")
+    console.print("If the channel is offline, this waits and checks every 60 seconds.")
+    console.print(f'In a second window run: clipsys watch "{out}" --program <id> --creator <name>')
+    try:
+        code = run_record(url, out, quality, segment_minutes * 60)
+    except FileNotFoundError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(1) from exc
+    console.print("[green]Recording finished.[/green]" if code == 0 else f"[red]Recorder exited with code {code}[/red]")
+    raise typer.Exit(code)
+
+
+@app.command()
 def watch(
     folder: Path = typer.Argument(..., help="Folder where stream recordings appear"),
     program: str = typer.Option(..., help="Program id from programs.yaml that covers this footage"),
