@@ -37,3 +37,12 @@ def test_failed_flip_keeps_upload_and_reports_private(monkeypatch):
     assert result.platform_post_id == "vid123"
     assert result.metadata["privacy"] == "private"
     assert units_used_today("acct_01") == 1600
+
+
+def test_hashtags_go_in_description_and_tags_lose_hash(monkeypatch):
+    yt = _fake_yt(monkeypatch)
+    pub = yt_mod.YouTubePublisher(token_ref="tok", dry_run=False)
+    pub.publish("v" * 8, "x.mp4", "t", "desc", ["#GTA6", "#GTAVI"], "acct_01")
+    snippet = yt.videos().insert.call_args.kwargs["body"]["snippet"]
+    assert snippet["description"] == "desc\n\n#GTA6 #GTAVI"
+    assert snippet["tags"] == ["GTA6", "GTAVI"]

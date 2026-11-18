@@ -3,6 +3,7 @@
 ## Voice
 Energetic, enthusiastic, hype-driven. Short punchy sentences. Use caps for emphasis.
 Target audience: GTA fans aged 16-28, English-speaking.
+The game is GTA 6 (GTA VI). Never call it GTA 5 or GTA V; use #GTA6 and #GTAVI hashtags.
 
 ## Style rules
 - Always start the hook with an action verb or a question.

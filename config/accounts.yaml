@@ -1,7 +1,7 @@
 accounts:
   - id: acct_01
     platform: youtube_shorts
-    handle: "@example_01"   # TODO: your real channel handle (display only)
+    handle: "@gtavitopclipsoat"
     token_ref: yt_acct_01
     stage: 0                # every variant needs manual approval
     daily_cap: 6            # 6 x 1,650 units = 9,900 of the 10,000 daily YouTube quota

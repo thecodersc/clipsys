@@ -119,8 +119,9 @@ class YouTubePublisher(Publisher):
         body = {
             "snippet": {
                 "title": title[:100],
-                "description": description[:5000],
-                "tags": tags[:10],
+                # Hashtags only work as hashtags in the description; API tags take no "#".
+                "description": (description + "\n\n" + " ".join(tags)).strip()[:5000],
+                "tags": [t.lstrip("#") for t in tags[:10]],
                 "categoryId": "20",  # Gaming
             },
             "status": {"privacyStatus": "private", "selfDeclaredMadeForKids": False},
