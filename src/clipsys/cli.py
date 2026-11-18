@@ -8,6 +8,14 @@ from pathlib import Path
 import typer
 from rich.console import Console
 
+# Every path (config/, data/, inbox/, .env) is cwd-relative. If launched from elsewhere,
+# fall back to the project root so the command works from any folder.
+_ROOT = Path(__file__).resolve().parents[2]
+if not Path("config").is_dir() and (_ROOT / "config").is_dir():
+    import os
+
+    os.chdir(_ROOT)
+
 app = typer.Typer(
     name="clipsys",
     help="GTA 6 clip pipeline: score, cut, caption, publish.",
@@ -239,7 +247,10 @@ def publish(
                 description=cap_data.get("description", ""),
                 tags=cap_data.get("hashtags", []),
                 account_id=account.id,
+                privacy_status="public",  # only api_public accounts reach this branch
             )
+            if result.metadata.get("privacy") == "private":
+                send_alert(f"clipsys: {result.platform_post_id} uploaded but still PRIVATE - make it public by hand.")
 
             with get_conn() as conn:
                 from datetime import datetime
@@ -293,6 +304,21 @@ def publish(
             skipped += 1
 
     console.print(f"[green]Publish done:[/green] published={published} skipped={skipped}")
+
+
+@app.command()
+def auth(account_id: str = typer.Argument(..., help="Account id from accounts.yaml, e.g. acct_01")) -> None:
+    """Authorize a YouTube account in the browser and save its token."""
+    from clipsys.config import load_accounts
+    from clipsys.publish.youtube import authorize
+
+    account = load_accounts().by_id(account_id)
+    if account.platform != "youtube_shorts":
+        console.print(f"[red]{account_id} is {account.platform}, not YouTube.[/red]")
+        raise typer.Exit(1)
+    console.print(f"Sign in as the channel for [bold]{account.handle}[/bold] in the browser window.")
+    path = authorize(account.token_ref)
+    console.print(f"[green]Token saved:[/green] {path}")
 
 
 @app.command(name="run-all")

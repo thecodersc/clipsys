@@ -9,6 +9,9 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 
+_STD_ATTRS = set(logging.LogRecord("", 0, "", 0, "", (), None).__dict__) | {"message", "asctime"}
+
+
 class _JsonFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         payload = {
@@ -17,9 +20,11 @@ class _JsonFormatter(logging.Formatter):
             "logger": record.name,
             "msg": record.getMessage(),
         }
+        # Include extra={...} fields (err, source_id, ...) so failures are diagnosable.
+        payload.update({k: v for k, v in record.__dict__.items() if k not in _STD_ATTRS})
         if record.exc_info:
             payload["exc"] = self.formatException(record.exc_info)
-        return json.dumps(payload)
+        return json.dumps(payload, default=str)
 
 
 def get_logger(name: str) -> logging.Logger:

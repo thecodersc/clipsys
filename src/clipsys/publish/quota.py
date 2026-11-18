@@ -11,6 +11,7 @@ log = get_logger(__name__)
 
 DEFAULT_BUDGET = 10_000
 YT_UPLOAD_UNITS = 1_600
+YT_UPDATE_UNITS = 50
 
 
 class QuotaExceededError(RuntimeError):

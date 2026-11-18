@@ -13,7 +13,10 @@ def _ff_bin(name: str) -> str:
 
 def ff_run(args: Sequence[str], **kwargs) -> subprocess.CompletedProcess:
     """Run ffmpeg with the configured binary."""
-    return subprocess.run([_ff_bin("ffmpeg"), *args], **kwargs)
+    # -nostdin + DEVNULL: otherwise ffmpeg polls the user's console for keypresses,
+    # which makes a 20-second analysis pass crawl for many minutes on Windows.
+    kwargs.setdefault("stdin", subprocess.DEVNULL)
+    return subprocess.run([_ff_bin("ffmpeg"), "-nostdin", *args], **kwargs)
 
 
 def ffprobe_run(args: Sequence[str], **kwargs) -> subprocess.CompletedProcess:

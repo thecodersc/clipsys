@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     ffmpeg_bin: str = "ffmpeg"
     ffprobe_bin: str = "ffprobe"
 
+    # Whisper: "auto" uses the GPU when present; "cpu" needs no NVIDIA libraries (slower)
+    whisper_device: str = "auto"
+
     # Ollama
     ollama_base_url: str = "http://localhost:11434"
     ollama_model: str = "qwen3:latest"

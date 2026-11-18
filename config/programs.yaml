@@ -7,3 +7,13 @@ programs:
     rights_notes: "Clipping rights only. No downloads."
     clip_permission: true
     permission_ref: "example-agreement-2024-01-01"
+
+  # Test only: videos you own. Never use this id for creator footage.
+  - id: self_owned_test
+    name: Self-owned test footage
+    credit_line: ""
+    require_link_to_creator: false
+    allowed_platforms: [youtube_shorts]
+    rights_notes: "Own footage, for end-to-end testing."
+    clip_permission: true
+    permission_ref: "self-owned-test"

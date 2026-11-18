@@ -50,7 +50,7 @@ def _build_ass_captions(segments: list[dict], t_offset: float) -> str:
     for seg in segments:
         start = max(0.0, seg["start"] - t_offset)
         end = max(0.0, seg["end"] - t_offset)
-        text = seg["text"].strip().replace("\n", " ").replace(",", r"\,")
+        text = seg["text"].strip().replace("\n", " ")  # Text is the last ASS field: commas need no escaping
         lines.append(f"Dialogue: 0,{_fmt_time(start)},{_fmt_time(end)},Default,{text}")
 
     return "\n".join(lines)
@@ -113,13 +113,25 @@ def render_variant(
         "right": "iw-1080",
     }[crop_offset]
 
-    vf_parts = [
-        f"scale=-1:{int(TARGET_H * zoom)}:flags=lanczos",
-        f"crop={TARGET_W}:{TARGET_H}:{crop_x}:(ih-{TARGET_H})/2",
-        "scale=1080:1920:flags=lanczos",
-        f"ass={ass_path}",
-    ]
-    vf = ",".join(vf_parts)
+    ass = f"ass={ass_path.as_posix()}"  # forward slashes: backslashes are escapes in ffmpeg filter args
+    if rp.layout == "blur":
+        # Whole frame stays visible: the source is fitted to the 1080 width (times zoom, so
+        # zoom > 1 trims the sides) and centred over a blurred, screen-filling copy of itself.
+        fg_w = int(TARGET_W * zoom) // 2 * 2
+        vf = (
+            f"split[a][b];"
+            f"[a]scale={TARGET_W}:{TARGET_H}:force_original_aspect_ratio=increase,"
+            f"crop={TARGET_W}:{TARGET_H},boxblur=20:5[bg];"
+            f"[b]scale={fg_w}:-2:flags=lanczos,crop={TARGET_W}:ih:{crop_x}:0[fg];"
+            f"[bg][fg]overlay=(W-w)/2:(H-h)/2,{ass}"
+        )
+    else:
+        vf = ",".join([
+            f"scale=-1:{int(TARGET_H * zoom)}:flags=lanczos",
+            f"crop={TARGET_W}:{TARGET_H}:{crop_x}:(ih-{TARGET_H})/2",
+            "scale=1080:1920:flags=lanczos",
+            ass,
+        ])
 
     af = "loudnorm=I=-14:TP=-2:LRA=11"
 

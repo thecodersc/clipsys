@@ -1,17 +1,18 @@
 accounts:
   - id: acct_01
     platform: youtube_shorts
-    handle: "@example_01"
+    handle: "@example_01"   # TODO: your real channel handle (display only)
     token_ref: yt_acct_01
-    stage: 0
-    daily_cap: 2
+    stage: 0                # every variant needs manual approval
+    daily_cap: 6            # 6 x 1,650 units = 9,900 of the 10,000 daily YouTube quota
     posting_windows: ["12:00-14:00", "18:00-21:00"]
     jitter_minutes: 20
-    live: false
-    api_public: false
+    live: true              # launch account: uploads for real with `publish --live`
+    api_public: true
     render_profile:
+      layout: blur          # whole frame visible; "crop" fills the screen but cuts the sides
       crop_offset: center
-      zoom: 1.05
+      zoom: 1.0             # blur layout: 1.0 = full width; e.g. 1.4 = bigger picture, sides trimmed
       length_band: short
       persona: personas/acct_01.md
 
