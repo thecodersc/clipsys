@@ -5,3 +5,8 @@ __pycache__/
 # runtime data: database, logs, tokens, source videos, rendered clips
 data/
 inbox/
+# exe build output
+build/
+dist/
+*.spec
+recordings/

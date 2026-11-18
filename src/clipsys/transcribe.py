@@ -16,25 +16,52 @@ DEFAULT_MODEL = "medium"
 DEFAULT_COMPUTE = "int8_float16"
 
 
-def _get_model(model_size: str, compute_type: str):
-    # Windows: the pip-installed NVIDIA runtime (nvidia-cublas-cu12, nvidia-cudnn-cu12) keeps its
-    # DLLs under site-packages/nvidia/*/bin, which ctranslate2 only finds if they are on PATH.
+def _gpu_ready() -> bool:
+    """True if an NVIDIA GPU is present AND its runtime libraries (cuBLAS, cuDNN) can be loaded."""
     import os
+    import sys
 
+    # The libraries come either from pip (site-packages/nvidia/*/bin) or, for the packaged
+    # exe, from an optional "gpu" folder next to clipsys.exe. ctranslate2 finds them via PATH.
+    dirs = [Path(sys.executable).parent / "gpu"] if getattr(sys, "frozen", False) else []
     try:
         import nvidia  # type: ignore[import]
 
-        for base in nvidia.__path__:
-            for d in Path(base).glob("*/bin"):
-                os.environ["PATH"] = f"{d}{os.pathsep}{os.environ['PATH']}"
+        dirs += [d for base in nvidia.__path__ for d in Path(base).glob("*/bin")]
     except ImportError:
         pass
+    for d in dirs:
+        if d.is_dir():
+            os.environ["PATH"] = f"{d}{os.pathsep}{os.environ['PATH']}"
 
+    import ctranslate2  # type: ignore[import]
+
+    if ctranslate2.get_cuda_device_count() == 0:
+        return False
+    if sys.platform != "win32":
+        return True
+    import ctypes
+
+    try:
+        # winmode=0: search PATH like ctranslate2 does (ctypes skips PATH by default)
+        ctypes.WinDLL("cublas64_12.dll", winmode=0)
+        ctypes.WinDLL("cudnn64_9.dll", winmode=0)
+    except OSError:
+        log.warning("gpu_libraries_missing_using_cpu")
+        return False
+    return True
+
+
+def _get_model(model_size: str, compute_type: str):
     from faster_whisper import WhisperModel  # type: ignore[import]
 
     from clipsys._env import settings
 
     device = settings.whisper_device
+    if device == "auto":
+        device = "cuda" if _gpu_ready() else "cpu"
+    else:
+        _gpu_ready()  # still put the library folders on PATH
     if device == "cpu":
         compute_type = "int8"  # float16 variants are GPU-only
     return WhisperModel(model_size, device=device, compute_type=compute_type)

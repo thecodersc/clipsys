@@ -10,10 +10,17 @@ from rich.console import Console
 
 # Every path (config/, data/, inbox/, .env) is cwd-relative. If launched from elsewhere,
 # fall back to the project root so the command works from any folder.
-_ROOT = Path(__file__).resolve().parents[2]
-if not Path("config").is_dir() and (_ROOT / "config").is_dir():
-    import os
+import os
+import sys
 
+# Old Windows consoles and pipes default to a legacy code page that cannot print "→" or emoji.
+for _stream in (sys.stdout, sys.stderr):
+    if _stream is not None and hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+
+# Packaged exe: the root is the folder holding clipsys.exe. From source: the repo root.
+_ROOT = Path(sys.executable).parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parents[2]
+if not Path("config").is_dir() and (_ROOT / "config").is_dir():
     os.chdir(_ROOT)
 
 app = typer.Typer(
@@ -127,7 +134,9 @@ def review(
     _ensure_db()
     import uvicorn
     console.print(f"[yellow]Review UI:[/yellow] http://{host}:{port}")
-    uvicorn.run("clipsys.review_app:app", host=host, port=port, reload=False)
+    from clipsys.review_app import app as review_app  # object, not import string: works when packaged
+
+    uvicorn.run(review_app, host=host, port=port, reload=False)
 
 
 @app.command()
@@ -341,8 +350,7 @@ def run_all(
 
     _run_stages()
 
-    # Delegate to publish command logic
-    _publish_inline(live)
+    publish(live=live)
 
 
 def _run_stages() -> None:
@@ -369,6 +377,29 @@ def _run_stages() -> None:
         console.print(f"[yellow]→ {name}[/yellow]")
         result = fn()
         console.print(f"  {result}")
+
+
+@app.command()
+def record(
+    url: str = typer.Argument(..., help="Stream URL, e.g. https://www.twitch.tv/channel"),
+    out: Path = typer.Option(Path("recordings"), help="Folder the chunks are written to"),
+    quality: str = typer.Option("best", help="Stream quality, e.g. best, 1080p60, 720p"),
+    segment_minutes: int = typer.Option(10, help="Length of each recorded chunk"),
+) -> None:
+    """Record a live stream into chunks. Run `clipsys watch` on the same folder to clip them."""
+    from clipsys.record import record as run_record
+
+    out = out.resolve()
+    console.print(f"Recording [bold]{url}[/bold] into {out} in {segment_minutes}-minute chunks (Ctrl+C to stop)")
+    console.print("If the channel is offline, this waits and checks every 60 seconds.")
+    console.print(f'In a second window run: clipsys watch "{out}" --program <id> --creator <name>')
+    try:
+        code = run_record(url, out, quality, segment_minutes * 60)
+    except FileNotFoundError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(1) from exc
+    console.print("[green]Recording finished.[/green]" if code == 0 else f"[red]Recorder exited with code {code}[/red]")
+    raise typer.Exit(code)
 
 
 @app.command()
@@ -408,14 +439,6 @@ def watch(
         if once and checks >= 2:
             break
         time.sleep(interval)
-
-
-def _publish_inline(live: bool) -> None:
-    """Call publish logic without spawning a subprocess."""
-    import subprocess
-    import sys
-    flags = ["--live"] if live else []
-    subprocess.run([sys.executable, "-m", "clipsys", "publish"] + flags, check=False)
 
 
 @app.command()

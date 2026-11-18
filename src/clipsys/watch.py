@@ -1,7 +1,7 @@
 """Watch a folder of stream recordings and register finished files in inbox/manifest.csv.
 
-The recorder (e.g. OBS with automatic file splitting, or a creator's shared recordings
-folder) writes chunks into the folder; clipsys never downloads anything itself.
+The recorder (`clipsys record`, OBS with automatic file splitting, or a creator's shared
+recordings folder) writes chunks into the folder; this module only registers finished files.
 """
 
 from __future__ import annotations
