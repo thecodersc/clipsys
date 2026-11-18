@@ -29,6 +29,12 @@ def _ensure_db() -> None:
     init_db()
 
 
+def _with_credit(description: str, program) -> str:
+    """Append the program's credit line (e.g. "Clip from @creator") to a description."""
+    credit = program.credit_line.strip() if program else ""
+    return "\n\n".join(part for part in (description.strip(), credit) if part)
+
+
 # ─── Commands ─────────────────────────────────────────────────────────────────
 
 @app.command()
@@ -194,6 +200,7 @@ def publish(
         cap_data = {}
         if row["caption_json"]:
             cap_data = json.loads(row["caption_json"])
+        description = _with_credit(cap_data.get("description", ""), programs.get(row["program_id"]))
 
         # Non-public accounts go to Telegram queue instead of platform API.
         if not account.api_public:
@@ -204,7 +211,7 @@ def publish(
                     variant_id=row["id"],
                     file_path=row["file_path"] or "",
                     title=cap_data.get("title", "GTA 6 Clip"),
-                    description=cap_data.get("description", ""),
+                    description=description,
                     permission_ref=permission_ref,
                     account_id=account.id,
                     platform=account.platform,
@@ -244,7 +251,7 @@ def publish(
                 variant_id=row["id"],
                 file_path=row["file_path"] or "",
                 title=cap_data.get("title", "GTA 6 Clip"),
-                description=cap_data.get("description", ""),
+                description=description,
                 tags=cap_data.get("hashtags", []),
                 account_id=account.id,
                 privacy_status="public",  # only api_public accounts reach this branch
@@ -273,7 +280,7 @@ def publish(
                     variant_id=row["id"],
                     file_path=row["file_path"] or "",
                     title=cap_data.get("title", "GTA 6 Clip"),
-                    description=cap_data.get("description", ""),
+                    description=description,
                     permission_ref=permission_ref,
                     account_id=account.id,
                     platform=account.platform,
