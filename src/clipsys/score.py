@@ -284,7 +284,7 @@ def run_score(cfg: ThresholdsConfig | None = None) -> dict[str, int]:
                       t.segments_json
                FROM sources s
                JOIN transcripts t ON t.source_id = s.id
-               WHERE s.status IN ('transcribed','scored')"""
+               WHERE s.status = 'transcribed'"""  # scored sources are done; re-scoring breaks existing clips
         ).fetchall()
 
     counts = {"scored": 0, "errors": 0}

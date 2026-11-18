@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import html
 import json
 from pathlib import Path
 
@@ -114,24 +115,18 @@ async def index(request: Request) -> HTMLResponse:
                 status=v["status"],
                 account_id=v["account_id"],
                 filename=filename,
-                title=cap.get("title", ""),
-                hook=cap.get("hook", ""),
-                description=cap.get("description", ""),
-                hashtags_str=", ".join(cap.get("hashtags", [])),
+                # escape: a quote in a title would otherwise cut the form field short
+                title=html.escape(cap.get("title", "")),
+                hook=html.escape(cap.get("hook", "")),
+                description=html.escape(cap.get("description", "")),
+                hashtags_str=html.escape(", ".join(cap.get("hashtags", []))),
             )
             cards.append(card)
         content = "".join(cards)
     return HTMLResponse(_HTML_TEMPLATE.format(content=content))
 
 
-@app.post("/variant/{variant_id}/save")
-async def save_caption(
-    variant_id: str,
-    title: str = Form(...),
-    hook: str = Form(...),
-    description: str = Form(...),
-    hashtags: str = Form(...),
-) -> RedirectResponse:
+def _save_caption(variant_id: str, title: str, hook: str, description: str, hashtags: str) -> None:
     tags = [h.strip() for h in hashtags.split(",") if h.strip()]
     cap = {"title": title, "hook": hook, "description": description, "hashtags": tags}
     with get_conn() as conn:
@@ -141,17 +136,38 @@ async def save_caption(
                WHERE id=?""",
             (json.dumps(cap), variant_id),
         )
+
+
+# Form("") rather than Form(...): an empty field (e.g. no hook) must not be a 422.
+@app.post("/variant/{variant_id}/save")
+async def save_caption(
+    variant_id: str,
+    title: str = Form(""),
+    hook: str = Form(""),
+    description: str = Form(""),
+    hashtags: str = Form(""),
+) -> RedirectResponse:
+    _save_caption(variant_id, title, hook, description, hashtags)
     return RedirectResponse("/", status_code=303)
 
 
 @app.post("/variant/{variant_id}/approve")
-async def approve(variant_id: str, **kwargs: str) -> RedirectResponse:
+async def approve(
+    variant_id: str,
+    title: str = Form(""),
+    hook: str = Form(""),
+    description: str = Form(""),
+    hashtags: str = Form(""),
+) -> RedirectResponse:
+    # Approve submits the same form, so keep any edits made on the page.
+    if title:
+        _save_caption(variant_id, title, hook, description, hashtags)
     _set_status(variant_id, "approved")
     return RedirectResponse("/", status_code=303)
 
 
 @app.post("/variant/{variant_id}/reject")
-async def reject(variant_id: str, **kwargs: str) -> RedirectResponse:
+async def reject(variant_id: str) -> RedirectResponse:
     _set_status(variant_id, "rejected")
     return RedirectResponse("/", status_code=303)
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import time
 from pathlib import Path
 from typing import Any
 
@@ -26,6 +27,7 @@ SCOPES = [
     "https://www.googleapis.com/auth/youtube.force-ssl",
 ]
 TOKEN_URI = "https://oauth2.googleapis.com/token"
+PUBLIC_RETRY_SECONDS = 10
 
 
 def authorize(token_ref: str) -> Path:
@@ -139,18 +141,24 @@ class YouTubePublisher(Publisher):
 
         if go_public:
             # A failed flip must not raise: the upload exists, and raising would re-upload it next run.
-            try:
-                yt.videos().update(
-                    part="status",
-                    body={"id": post_id, "status": {"privacyStatus": "public", "selfDeclaredMadeForKids": False}},
-                ).execute()
-                charge_units(account_id, YT_UPDATE_UNITS)
-            except Exception as exc:
-                privacy_status = "private"
-                log.error(
-                    "youtube_make_public_failed",
-                    extra={"account_id": account_id, "post_id": post_id, "err": str(exc)[:200]},
-                )
+            # YouTube can answer 403 for a few seconds right after an upload, so retry briefly.
+            for attempt in range(1, 5):
+                try:
+                    yt.videos().update(
+                        part="status",
+                        body={"id": post_id, "status": {"privacyStatus": "public", "selfDeclaredMadeForKids": False}},
+                    ).execute()
+                    charge_units(account_id, YT_UPDATE_UNITS)
+                    break
+                except Exception as exc:
+                    if attempt < 4:
+                        time.sleep(PUBLIC_RETRY_SECONDS)
+                        continue
+                    privacy_status = "private"
+                    log.error(
+                        "youtube_make_public_failed",
+                        extra={"account_id": account_id, "post_id": post_id, "err": str(exc)[:500]},
+                    )
 
         log.info(
             "youtube_published",
