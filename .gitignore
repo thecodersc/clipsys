@@ -1,0 +1,7 @@
+.venv/
+.env
+__pycache__/
+*.egg-info/
+# runtime data: database, logs, tokens, source videos, rendered clips
+data/
+inbox/

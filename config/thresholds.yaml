@@ -4,7 +4,7 @@ score:
     loudness_peak: 0.25
     scene_density: 0.15
     keyword_hits: 0.25
-  min_score: 1.0        # z-score units; tune during testing
+  min_score: 0.5       # z-score units; tune during testing
   nms_window_seconds: 45
   keywords:
     - explosion
@@ -30,7 +30,7 @@ clips:
   pre_roll_seconds: 2.5
 
 allocation:
-  max_accounts_per_clip: 3
+  max_accounts_per_clip: 1   # one account live for now; raise to post each clip on several accounts
   max_clips_per_day: 50
 
 review:

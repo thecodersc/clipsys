@@ -37,6 +37,9 @@ class ProgramsConfig(BaseModel):
 # ─── accounts.yaml ────────────────────────────────────────────────────────────
 
 class RenderProfile(BaseModel):
+    # crop: fill the screen, cutting the sides off (subjects can fall out of frame)
+    # blur: keep the whole frame, centred over a blurred background
+    layout: Literal["crop", "blur"] = "crop"
     crop_offset: Literal["left", "center", "right"] = "center"
     zoom: float = 1.05
     length_band: Literal["short", "long"] = "short"

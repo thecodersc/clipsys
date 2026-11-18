@@ -85,13 +85,14 @@ def _comment_density(youtube_video_id: str | None, duration_s: float, bin_s: flo
 def _loudness_signal(file_path: str, duration_s: float, window_s: float = 10.0) -> dict[float, float]:
     """Return {t_center: short_term_loudness_max_per_window}."""
     result = ff_run(
-        ["-i", file_path, "-af", "ebur128=peak=true:framelog=verbose", "-f", "null", "-"],
+        # framelog must stay at the default (info): at "verbose" nothing is printed at the default loglevel.
+        ["-vn", "-i", file_path, "-af", "ebur128=peak=true", "-f", "null", "-"],
         capture_output=True, text=True, timeout=max(60, int(duration_s * 2)),
     )
     output = result.stderr
 
-    # Parse lines: "t: X.XXX    M: Y.YY    S: Z.ZZ  I: W.WW LRA: ..."
-    pattern = re.compile(r"t:\s*([\d.]+)\s+M:\s*([-\d.]+)\s+S:\s*([-\d.]+)")
+    # Parse lines: "t: X.XXX  [TARGET:-23 LUFS]  M: Y.YY S: Z.ZZ  I: W.WW LRA: ..."
+    pattern = re.compile(r"t:\s*([\d.]+)\s+(?:TARGET:\S+\s+LUFS\s+)?M:\s*([-\d.]+)\s+S:\s*([-\d.]+)")
     buckets: dict[float, list[float]] = defaultdict(list)
 
     for m in pattern.finditer(output):
@@ -107,7 +108,7 @@ def _loudness_signal(file_path: str, duration_s: float, window_s: float = 10.0) 
 def _scene_density(file_path: str, duration_s: float, window_s: float = 10.0) -> dict[float, float]:
     """Return {t_center: scene_change_count} using ffmpeg scdet."""
     result = ff_run(
-        ["-i", file_path, "-vf", "scdet=threshold=10", "-f", "null", "-"],
+        ["-an", "-i", file_path, "-vf", "scdet=threshold=10", "-f", "null", "-"],
         capture_output=True, text=True, timeout=max(60, int(duration_s * 2)),
     )
     output = result.stderr
@@ -116,7 +117,8 @@ def _scene_density(file_path: str, duration_s: float, window_s: float = 10.0) ->
     buckets: dict[float, float] = defaultdict(float)
 
     for line in output.splitlines():
-        m = re.search(r"Parsed_scdet.*pts_time:([\d.]+)", line)
+        # older ffmpeg prints "pts_time:12.3"; newer prints "lavfi.scd.time: 12.3"
+        m = re.search(r"Parsed_scdet.*(?:pts_time:|lavfi\.scd\.time:\s*)([\d.]+)", line)
         if m:
             t = float(m.group(1))
             center = (t // window_s) * window_s + window_s / 2

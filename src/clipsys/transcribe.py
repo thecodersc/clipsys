@@ -17,9 +17,27 @@ DEFAULT_COMPUTE = "int8_float16"
 
 
 def _get_model(model_size: str, compute_type: str):
+    # Windows: the pip-installed NVIDIA runtime (nvidia-cublas-cu12, nvidia-cudnn-cu12) keeps its
+    # DLLs under site-packages/nvidia/*/bin, which ctranslate2 only finds if they are on PATH.
+    import os
+
+    try:
+        import nvidia  # type: ignore[import]
+
+        for base in nvidia.__path__:
+            for d in Path(base).glob("*/bin"):
+                os.environ["PATH"] = f"{d}{os.pathsep}{os.environ['PATH']}"
+    except ImportError:
+        pass
+
     from faster_whisper import WhisperModel  # type: ignore[import]
 
-    return WhisperModel(model_size, device="auto", compute_type=compute_type)
+    from clipsys._env import settings
+
+    device = settings.whisper_device
+    if device == "cpu":
+        compute_type = "int8"  # float16 variants are GPU-only
+    return WhisperModel(model_size, device=device, compute_type=compute_type)
 
 
 def transcribe_source(
