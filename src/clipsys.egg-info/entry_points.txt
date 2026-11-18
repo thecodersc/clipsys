@@ -1,0 +1,2 @@
+[console_scripts]
+clipsys = clipsys.cli:app

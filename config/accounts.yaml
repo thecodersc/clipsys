@@ -1,0 +1,192 @@
+accounts:
+  - id: acct_01
+    platform: youtube_shorts
+    handle: "@example_01"
+    token_ref: yt_acct_01
+    stage: 0
+    daily_cap: 2
+    posting_windows: ["12:00-14:00", "18:00-21:00"]
+    jitter_minutes: 20
+    live: false
+    api_public: false
+    render_profile:
+      crop_offset: center
+      zoom: 1.05
+      length_band: short
+      persona: personas/acct_01.md
+
+  - id: acct_02
+    platform: youtube_shorts
+    handle: "@example_02"
+    token_ref: yt_acct_02
+    stage: 0
+    daily_cap: 2
+    posting_windows: ["10:00-12:00", "19:00-22:00"]
+    jitter_minutes: 15
+    live: false
+    api_public: false
+    render_profile:
+      crop_offset: left
+      zoom: 1.0
+      length_band: long
+      persona: personas/acct_02.md
+
+  - id: acct_03
+    platform: youtube_shorts
+    handle: "@example_03"
+    token_ref: yt_acct_03
+    stage: 0
+    daily_cap: 3
+    posting_windows: ["08:00-10:00", "20:00-23:00"]
+    jitter_minutes: 10
+    live: false
+    api_public: false
+    render_profile:
+      crop_offset: right
+      zoom: 1.08
+      length_band: short
+      persona: personas/acct_03.md
+
+  - id: acct_04
+    platform: youtube_shorts
+    handle: "@example_04"
+    token_ref: yt_acct_04
+    stage: 0
+    daily_cap: 2
+    posting_windows: ["13:00-15:00", "21:00-23:00"]
+    jitter_minutes: 20
+    live: false
+    api_public: false
+    render_profile:
+      crop_offset: center
+      zoom: 1.05
+      length_band: short
+      persona: personas/acct_04.md
+
+  - id: acct_05
+    platform: facebook_reels
+    handle: "ExamplePage05"
+    token_ref: fb_acct_05
+    stage: 0
+    daily_cap: 2
+    posting_windows: ["11:00-13:00", "18:00-20:00"]
+    jitter_minutes: 15
+    live: false
+    api_public: false
+    render_profile:
+      crop_offset: center
+      zoom: 1.05
+      length_band: short
+      persona: personas/acct_05.md
+
+  - id: acct_06
+    platform: facebook_reels
+    handle: "ExamplePage06"
+    token_ref: fb_acct_06
+    stage: 0
+    daily_cap: 2
+    posting_windows: ["12:00-14:00", "19:00-21:00"]
+    jitter_minutes: 20
+    live: false
+    api_public: false
+    render_profile:
+      crop_offset: center
+      zoom: 1.0
+      length_band: long
+      persona: personas/acct_06.md
+
+  - id: acct_07
+    platform: facebook_reels
+    handle: "ExamplePage07"
+    token_ref: fb_acct_07
+    stage: 0
+    daily_cap: 2
+    posting_windows: ["09:00-11:00", "17:00-19:00"]
+    jitter_minutes: 10
+    live: false
+    api_public: false
+    render_profile:
+      crop_offset: left
+      zoom: 1.05
+      length_band: short
+      persona: personas/acct_07.md
+
+  - id: acct_08
+    platform: facebook_reels
+    handle: "ExamplePage08"
+    token_ref: fb_acct_08
+    stage: 0
+    daily_cap: 2
+    posting_windows: ["14:00-16:00", "20:00-22:00"]
+    jitter_minutes: 15
+    live: false
+    api_public: false
+    render_profile:
+      crop_offset: right
+      zoom: 1.0
+      length_band: short
+      persona: personas/acct_08.md
+
+  - id: acct_09
+    platform: tiktok
+    handle: "@example_tt_01"
+    token_ref: tt_acct_09
+    stage: 0
+    daily_cap: 3
+    posting_windows: ["12:00-14:00", "19:00-22:00"]
+    jitter_minutes: 20
+    live: false
+    api_public: false
+    render_profile:
+      crop_offset: center
+      zoom: 1.05
+      length_band: short
+      persona: personas/acct_09.md
+
+  - id: acct_10
+    platform: tiktok
+    handle: "@example_tt_02"
+    token_ref: tt_acct_10
+    stage: 0
+    daily_cap: 3
+    posting_windows: ["10:00-12:00", "21:00-23:00"]
+    jitter_minutes: 15
+    live: false
+    api_public: false
+    render_profile:
+      crop_offset: center
+      zoom: 1.0
+      length_band: short
+      persona: personas/acct_10.md
+
+  - id: acct_11
+    platform: tiktok
+    handle: "@example_tt_03"
+    token_ref: tt_acct_11
+    stage: 0
+    daily_cap: 2
+    posting_windows: ["13:00-15:00", "20:00-22:00"]
+    jitter_minutes: 10
+    live: false
+    api_public: false
+    render_profile:
+      crop_offset: left
+      zoom: 1.05
+      length_band: long
+      persona: personas/acct_11.md
+
+  - id: acct_12
+    platform: tiktok
+    handle: "@example_tt_04"
+    token_ref: tt_acct_12
+    stage: 0
+    daily_cap: 2
+    posting_windows: ["11:00-13:00", "18:00-21:00"]
+    jitter_minutes: 20
+    live: false
+    api_public: false
+    render_profile:
+      crop_offset: right
+      zoom: 1.08
+      length_band: short
+      persona: personas/acct_12.md

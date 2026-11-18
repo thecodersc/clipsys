@@ -1,0 +1,9 @@
+programs:
+  - id: example_program
+    name: Example Program
+    credit_line: "Clip from @creator"
+    require_link_to_creator: true
+    allowed_platforms: [youtube_shorts, facebook_reels, tiktok]
+    rights_notes: "Clipping rights only. No downloads."
+    clip_permission: true
+    permission_ref: "example-agreement-2024-01-01"

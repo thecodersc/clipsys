@@ -1,0 +1,38 @@
+score:
+  weights:
+    comment_density: 0.35
+    loudness_peak: 0.25
+    scene_density: 0.15
+    keyword_hits: 0.25
+  min_score: 1.0        # z-score units; tune during testing
+  nms_window_seconds: 45
+  keywords:
+    - explosion
+    - crash
+    - race
+    - chase
+    - action
+    - police
+    - heist
+    - escape
+    - fight
+    - reveal
+    - epic
+    - insane
+
+clips:
+  short:
+    min_s: 15
+    max_s: 59
+  long:
+    min_s: 60
+    max_s: 120
+  pre_roll_seconds: 2.5
+
+allocation:
+  max_accounts_per_clip: 3
+  max_clips_per_day: 50
+
+review:
+  auto_publish_pass_rate: 0.9
+  min_reviews_for_auto: 30
